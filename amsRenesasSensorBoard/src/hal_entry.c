@@ -24,6 +24,8 @@ void hal_entry(void)
     AS3935Data as3935Data;
     TMD3782Data tmd3782Data;
     uint16_t ens210ChipId;
+    uint8_t ens210UniqueId[8];
+    uint8_t ens210SensorRunMode;
     uint8_t tmd3782ChipId;
     uint8_t tmd3782Status;
 
@@ -162,6 +164,23 @@ void hal_entry(void)
     }
     printf ("0x%02x\r\n", ens210ChipId);
 
+    printf ("ENS210 Unique ID: ");
+    error = ENS210UniqueId(ens210Address, ens210UniqueId);
+    if (error != SSP_SUCCESS)
+    {
+        printf ("Failed.\r\n");
+        while (true)
+        {
+        }
+    }
+
+    printf ("0x");
+    for (int i = 0; i < 8; i++)
+    {
+        printf ("%02X", ens210UniqueId[i]);
+    }
+    printf("\r\n");
+
     printf ("Opening TMD3782: ");
     error = TMD3782Open(tmd3782Address);
     if (error != SSP_SUCCESS)
@@ -172,6 +191,18 @@ void hal_entry(void)
         }
     }
     printf ("OK.\r\n");
+
+    printf ("ENS210 Sensor Run Mode:\r\n");
+    error = ENS210GetSensorRunMode(ens210Address, &ens210SensorRunMode);
+    if (error != SSP_SUCCESS)
+    {
+        printf ("Failed.\r\n");
+        while (true)
+        {
+        }
+    }
+    printf ("\tH_RUN: %d\r\n", (ens210SensorRunMode & 0x02) >> 1);
+    printf ("\tT_RUN: %d\r\n", (ens210SensorRunMode & 0x01) >> 0);
 
     printf ("TMD3782 Chip ID: ");
     error = TMD3782ChipId(tmd3782Address, &tmd3782ChipId);

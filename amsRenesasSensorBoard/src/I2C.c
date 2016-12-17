@@ -81,5 +81,4 @@ ssp_err_t I2CReadRegister(uint8_t slaveAddress, uint8_t registerAddress, uint8_t
         return error;
 
      return SSP_SUCCESS;
-
 }
