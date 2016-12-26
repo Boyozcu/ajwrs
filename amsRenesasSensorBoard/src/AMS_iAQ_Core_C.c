@@ -15,12 +15,12 @@ ssp_err_t AMSiAQCoreInitialize(void)
     return SSP_SUCCESS;
 }
 
-ssp_err_t AMSiAQCoreUpdateSensors(uint8_t address, AMSiAQCoreData * const data)
+ssp_err_t AMSiAQCoreUpdateSensors(i2c_master_instance_t * const i2c, uint8_t address, AMSiAQCoreData * const data)
 {
     ssp_err_t error;
     uint8_t amsData[9] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    error = I2CRead(address, amsData, 9, false);
+    error = I2CRead(i2c, address, amsData, 9, false);
     if (error != SSP_SUCCESS)
         return error;
 

@@ -66,7 +66,7 @@ typedef struct _as3935Data
 } AS3935Data;
 
 ssp_err_t AS3935Initialize(void);
-ssp_err_t AS3935UpdateSensors(uint8_t address, AS3935Data * const data);
+ssp_err_t AS3935UpdateSensors(i2c_master_instance_t * const i2c, uint8_t address, AS3935Data * const data);
 
 
 #endif /* AS3935_H_ */

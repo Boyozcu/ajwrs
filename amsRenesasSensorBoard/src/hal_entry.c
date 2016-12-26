@@ -88,7 +88,7 @@ void hal_entry(void)
     printf ("OK.\r\n");
 
     printf ("Opening I2C: ");
-    error = I2COpen ();
+    error = I2COpen ((i2c_master_instance_t * const)&g_i2c);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -143,7 +143,7 @@ void hal_entry(void)
     printf ("OK.\r\n");
 
     printf ("Opening ENS210: ");
-    error = ENS210Open(ens210Address);
+    error = ENS210Open((i2c_master_instance_t * const)&g_i2c, ens210Address);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -154,7 +154,7 @@ void hal_entry(void)
     printf ("OK.\r\n");
 
     printf ("ENS210 Chip ID: ");
-    error = ENS210ChipId(ens210Address, &ens210ChipId);
+    error = ENS210ChipId((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210ChipId);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -165,7 +165,7 @@ void hal_entry(void)
     printf ("0x%02x\r\n", ens210ChipId);
 
     printf ("ENS210 Unique ID: ");
-    error = ENS210UniqueId(ens210Address, ens210UniqueId);
+    error = ENS210UniqueId((i2c_master_instance_t * const)&g_i2c, ens210Address, ens210UniqueId);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -182,7 +182,7 @@ void hal_entry(void)
     printf("\r\n");
 
     printf ("Opening TMD3782: ");
-    error = TMD3782Open(tmd3782Address);
+    error = TMD3782Open((i2c_master_instance_t * const)&g_i2c, tmd3782Address);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -193,7 +193,7 @@ void hal_entry(void)
     printf ("OK.\r\n");
 
     printf ("ENS210 Sensor Run Mode:\r\n");
-    error = ENS210GetSensorRunMode(ens210Address, &ens210SensorRunMode);
+    error = ENS210GetSensorRunMode((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210SensorRunMode);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -205,7 +205,7 @@ void hal_entry(void)
     printf ("\tT_RUN: %d\r\n", (ens210SensorRunMode & 0x01) >> 0);
 
     printf ("TMD3782 Chip ID: ");
-    error = TMD3782ChipId(tmd3782Address, &tmd3782ChipId);
+    error = TMD3782ChipId((i2c_master_instance_t * const)&g_i2c, tmd3782Address, &tmd3782ChipId);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -216,7 +216,7 @@ void hal_entry(void)
     printf ("0x%02x\r\n", tmd3782ChipId);
 
     printf ("TMD3782 Status: ");
-    error = TMD3782Status(tmd3782Address, &tmd3782Status);
+    error = TMD3782Status((i2c_master_instance_t * const)&g_i2c, tmd3782Address, &tmd3782Status);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed.\r\n");
@@ -237,10 +237,10 @@ void hal_entry(void)
 
     while (true)
     {
-        AMSiAQCoreUpdateSensors(iAQCoreCAddress, &aMSiAQCoreData);
-        ENS210UpdateSensors(ens210Address, &ens210Data);
-        AS3935UpdateSensors(as3935Address, &as3935Data);
-        TMD3782UpdateSensors(tmd3782Address, &tmd3782Data);
+        AMSiAQCoreUpdateSensors((i2c_master_instance_t * const)&g_i2c, iAQCoreCAddress, &aMSiAQCoreData);
+        ENS210UpdateSensors((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210Data);
+        AS3935UpdateSensors((i2c_master_instance_t * const)&g_i2c, as3935Address, &as3935Data);
+        TMD3782UpdateSensors((i2c_master_instance_t * const)&g_i2c, tmd3782Address, &tmd3782Data);
 
         printf("AMS iAQ Core C Data:\r\n");
         printf("Prediction: %dppm\033[K\r\n", aMSiAQCoreData.Prediction);

@@ -11,6 +11,7 @@
 #include "Timer.h"
 #include <stdio.h>
 
+/* Constant Structure to hold the addresses for the various registers */
 const struct
 {
     uint8_t PART_ID;
@@ -41,12 +42,12 @@ ssp_err_t ENS210Initialize(void)
     return SSP_SUCCESS;
 }
 
-ssp_err_t ENS210Open(uint8_t address)
+ssp_err_t ENS210Open(i2c_master_instance_t * const i2c, uint8_t address)
 {
     ssp_err_t error;
 
     // Disable Low Power Mode
-    error = ENS210SetSystemControl (address, 0x00);
+    error = ENS210SetSystemControl (i2c, address, 0x00);
     if (error != SSP_SUCCESS)
         return error;
 
@@ -54,7 +55,7 @@ ssp_err_t ENS210Open(uint8_t address)
     uint8_t status = 0;
     while ((status & 0x01) == 0)
     {
-        error = ENS210GetSystemStatus (address, &status);
+        error = ENS210GetSystemStatus (i2c, address, &status);
         if (error != SSP_SUCCESS)
             return error;
         printf (".");
@@ -62,78 +63,78 @@ ssp_err_t ENS210Open(uint8_t address)
     }
 
     // Enable Continuous Measurements
-    error = ENS210SetSensorRunMode (address, 0x03);
+    error = ENS210SetSensorRunMode (i2c, address, 0x03);
     if (error != SSP_SUCCESS)
         return error;
 
     // Start R & H Measurements
-    error = ENS210SetSensorStart (address, 0x03);
+    error = ENS210SetSensorStart (i2c, address, 0x03);
     if (error != SSP_SUCCESS)
         return error;
 
     return SSP_SUCCESS;
 }
 
-ssp_err_t ENS210SetSystemControl(uint8_t address, uint8_t const systemControl)
+ssp_err_t ENS210SetSystemControl(i2c_master_instance_t * const i2c, uint8_t address, uint8_t const systemControl)
 {
-    return I2CWriteRegister (address, ENS210RegisterAddresses.SYS_CTRL, systemControl, false);
+    return I2CWriteRegister (i2c, address, ENS210RegisterAddresses.SYS_CTRL, systemControl, false);
 }
 
-ssp_err_t ENS210GetSystemControl(uint8_t address, uint8_t * const systemControl)
+ssp_err_t ENS210GetSystemControl(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const systemControl)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.SYS_CTRL, systemControl, 1, false);
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.SYS_CTRL, systemControl, 1, false);
 }
 
-ssp_err_t ENS210GetSystemStatus(uint8_t address, uint8_t * const systemStatus)
+ssp_err_t ENS210GetSystemStatus(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const systemStatus)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.SYS_STAT, systemStatus, 1, false);
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.SYS_STAT, systemStatus, 1, false);
 }
 
-ssp_err_t ENS210SetSensorRunMode(uint8_t address, uint8_t const sensorRunMode)
+ssp_err_t ENS210SetSensorRunMode(i2c_master_instance_t * const i2c, uint8_t address, uint8_t const sensorRunMode)
 {
-    return I2CWriteRegister (address, ENS210RegisterAddresses.SENS_RUN, *((uint8_t *) &sensorRunMode), false);
+    return I2CWriteRegister (i2c, address, ENS210RegisterAddresses.SENS_RUN, *((uint8_t *) &sensorRunMode), false);
 }
 
-ssp_err_t ENS210GetSensorRunMode(uint8_t address, uint8_t * const sensorRunMode)
+ssp_err_t ENS210GetSensorRunMode(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const sensorRunMode)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.SENS_RUN, sensorRunMode, 1, false);
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.SENS_RUN, sensorRunMode, 1, false);
 }
 
-ssp_err_t ENS210SetSensorStart(uint8_t address, uint8_t const sensorStart)
+ssp_err_t ENS210SetSensorStart(i2c_master_instance_t * const i2c, uint8_t address, uint8_t const sensorStart)
 {
-    return I2CWriteRegister (address, ENS210RegisterAddresses.SENS_START, *((uint8_t *) &sensorStart), false);
+    return I2CWriteRegister (i2c, address, ENS210RegisterAddresses.SENS_START, *((uint8_t *) &sensorStart), false);
 }
-ssp_err_t ENS210GetSensorStart(uint8_t address, uint8_t * const sensorStart)
+ssp_err_t ENS210GetSensorStart(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const sensorStart)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.SENS_START, sensorStart, 1, false);
-}
-
-ssp_err_t ENS210SetSensorStop(uint8_t address, uint8_t const sensorStop)
-{
-    return I2CWriteRegister (address, ENS210RegisterAddresses.SENS_STOP, *((uint8_t *) &sensorStop), false);
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.SENS_START, sensorStart, 1, false);
 }
 
-ssp_err_t ENS210GetSensorStop(uint8_t address, uint8_t * const sensorStop)
+ssp_err_t ENS210SetSensorStop(i2c_master_instance_t * const i2c, uint8_t address, uint8_t const sensorStop)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.SENS_STOP, sensorStop, 1, false);
+    return I2CWriteRegister (i2c, address, ENS210RegisterAddresses.SENS_STOP, *((uint8_t *) &sensorStop), false);
 }
 
-ssp_err_t ENS210GetSensorStatus(uint8_t address, uint8_t * const sensorStatus)
+ssp_err_t ENS210GetSensorStop(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const sensorStop)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.SENS_STOP, sensorStatus, 1, false);
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.SENS_STOP, sensorStop, 1, false);
 }
 
-ssp_err_t ENS210ChipId(uint8_t address, uint16_t * const chipId)
+ssp_err_t ENS210GetSensorStatus(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const sensorStatus)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.PART_ID, (uint8_t *) chipId, 2, false);
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.SENS_STOP, sensorStatus, 1, false);
 }
 
-ssp_err_t ENS210UniqueId(uint8_t address, uint8_t * const uniqueId)
+ssp_err_t ENS210ChipId(i2c_master_instance_t * const i2c, uint8_t address, uint16_t * const chipId)
 {
-    return I2CReadRegister (address, ENS210RegisterAddresses.UID, uniqueId, 8, false);
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.PART_ID, (uint8_t *) chipId, 2, false);
 }
 
-ssp_err_t ENS210UpdateSensors(uint8_t address, ENS210Data * const data)
+ssp_err_t ENS210UniqueId(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const uniqueId)
+{
+    return I2CReadRegister (i2c, address, ENS210RegisterAddresses.UID, uniqueId, 8, false);
+}
+
+ssp_err_t ENS210UpdateSensors(i2c_master_instance_t * const i2c, uint8_t address, ENS210Data * const data)
 {
     ssp_err_t error;
 
@@ -142,10 +143,7 @@ ssp_err_t ENS210UpdateSensors(uint8_t address, ENS210Data * const data)
     uint16_t rawTemp;
     uint16_t rawHumi;
 
-    error = I2CWriteByte (address, ENS210RegisterAddresses.T_VAL, true);
-    if (error != SSP_SUCCESS)
-        return error;
-    error = I2CRead (address, buffer, 6, false);
+    error = I2CReadRegister(i2c, address, ENS210RegisterAddresses.T_VAL, buffer, 6, false);
     if (error != SSP_SUCCESS)
         return error;
 

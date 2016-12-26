@@ -16,6 +16,6 @@ typedef struct _AMSiAQCoreData
     uint16_t TVOC;
 } AMSiAQCoreData;
 ssp_err_t AMSiAQCoreInitialize(void);
-ssp_err_t AMSiAQCoreUpdateSensors(uint8_t address, AMSiAQCoreData * const data);
+ssp_err_t AMSiAQCoreUpdateSensors(i2c_master_instance_t * const i2c, uint8_t address, AMSiAQCoreData * const data);
 
 #endif /* AMS_IAQ_CORE_C_H_ */
