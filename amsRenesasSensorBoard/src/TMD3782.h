@@ -17,6 +17,8 @@ typedef struct _TMD3782Data
     uint16_t Proximity;
 } TMD3782Data;
 
+
+
 ssp_err_t TMD3782Initialize(void);
 ssp_err_t TMD3782Open(i2c_master_instance_t * const i2c, uint8_t address);
 ssp_err_t TMD3782ChipId(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const chipId);
