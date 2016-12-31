@@ -23,11 +23,18 @@ void hal_entry(void)
     ENS210Data ens210Data;
     AS3935Data as3935Data;
     TMD3782Data tmd3782Data;
+
+    uint8_t ens210systemControl;
     uint16_t ens210ChipId;
     uint8_t ens210UniqueId[8];
     uint8_t ens210SensorRunMode;
+    uint8_t ens210systemStatus;
+    uint8_t ens210SensorStarted;
+    uint8_t ens210SensorStatus;
+
     uint8_t tmd3782ChipId;
     uint8_t tmd3782Status;
+
 
     /************************************
      * Init UART
@@ -171,7 +178,8 @@ void hal_entry(void)
     }
     printf ("OK\r\n");
 
-    printf ("ENS210 Chip ID: ");
+    printf("\r\n\r\n --==================== ENS210 ====================--\r\n");
+    printf ("\t              Chip ID: ");
     error = ENS210ChipId((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210ChipId);
     if (error != SSP_SUCCESS)
     {
@@ -182,8 +190,8 @@ void hal_entry(void)
     }
     printf ("0x%02x\r\n", ens210ChipId);
 
-    printf ("ENS210 Unique ID: ");
-    error = ENS210UniqueId((i2c_master_instance_t * const)&g_i2c, ens210Address, ens210UniqueId);
+    printf ("\t            Unique ID: ");
+   error = ENS210UniqueId((i2c_master_instance_t * const)&g_i2c, ens210Address, ens210UniqueId);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed\r\n");
@@ -199,8 +207,8 @@ void hal_entry(void)
     }
     printf("\r\n");
 
-    printf ("ENS210 Sensor Run Mode:\r\n");
-    error = ENS210GetSensorRunMode((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210SensorRunMode);
+    printf ("\t       Low Power Mode: ");
+    error = ENS210GetSystemControl((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210systemControl);
     if (error != SSP_SUCCESS)
     {
         printf ("Failed\r\n");
@@ -208,9 +216,53 @@ void hal_entry(void)
         {
         }
     }
-    printf ("\tH_RUN: %d\r\n", (ens210SensorRunMode & 0x02) >> 1);
-    printf ("\tT_RUN: %d\r\n", (ens210SensorRunMode & 0x01) >> 0);
+    printf ("%s\r\n", ens210systemControl == 0 ? "Disabled" : "Enabled");
 
+    printf ("\t        System Status: ");
+    error = ENS210GetSystemControl((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210systemStatus);
+    if (error != SSP_SUCCESS)
+    {
+        printf ("Failed\r\n");
+        while (true)
+        {
+        }
+    }
+    printf ("%s\r\n", ens210systemStatus == 0 ? "Standby/Booting" : "Active");
+
+    error = ENS210GetSensorRunMode((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210SensorRunMode);
+    if (error != SSP_SUCCESS)
+    {
+        printf ("Failed retrieving sensor run mode.\r\n");
+        while (true)
+        {
+        }
+    }
+    printf ("\t    Humidity Run Mode: %s\r\n", (ens210SensorRunMode & 0x02) ? "Continuous" : "One Shot");
+    printf ("\t Temperature Run Mode: %s\r\n", (ens210SensorRunMode & 0x01) ? "Continuous" : "One Shot");
+
+    error = ENS210GetSensorStart((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210SensorStarted);
+    if (error != SSP_SUCCESS)
+    {
+        printf ("Failed retrieving sensor started.\r\n");
+        while (true)
+        {
+        }
+    }
+    printf ("\t     Humidity Running: %s\r\n", (ens210SensorStarted & 0x02) ? "Yes" : "No");
+    printf ("\t  Temperature Running: %s\r\n", (ens210SensorStarted & 0x01) ? "Yes" : "No");
+
+    error = ENS210GetSensorStatus((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210SensorStatus);
+    if (error != SSP_SUCCESS)
+    {
+        printf ("Failed retrieving sensor started.\r\n");
+        while (true)
+        {
+        }
+    }
+    printf ("\t   Humidity Measuring: %s\r\n", (ens210SensorStatus & 0x02) ? "Active" : "Idle");
+    printf ("\tTemperature Measuring: %s\r\n", (ens210SensorStatus & 0x01) ? "Active" : "Idle");
+
+    printf("\r\n\r\n --==================== TMD3782 ====================--\r\n");
     printf ("TMD3782 Chip ID: ");
     error = TMD3782ChipId((i2c_master_instance_t * const)&g_i2c, tmd3782Address, &tmd3782ChipId);
     if (error != SSP_SUCCESS)
@@ -264,8 +316,8 @@ void hal_entry(void)
 
         printf("\r\n");
         printf("ENS210 Data: \r\n");
-        printf(" T: %fC\033[K\r\n", ens210Data.Temperature);
-        printf("RH: %f%%\033[K\r\n", ens210Data.Humidity);
+        printf(" T: %4.1fC\033[K\r\n", ens210Data.Temperature);
+        printf("RH: %4.1f%%\033[K\r\n", ens210Data.Humidity);
 
         printf("\r\n");
         printf("TMD3782 Data: \r\n");

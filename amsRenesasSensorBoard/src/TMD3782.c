@@ -8,6 +8,14 @@
 #include "I2C.h"
 #include "TMD3782.h"
 
+const struct TMD3782RGBCIntegrationTimes TMD3782RGBCIntegrationTimes =
+{ 0xFF, // Cycles1
+  0xF6, // Cycles10
+  0xD6, // Cycles42
+  0xC0, // Cycles64
+  0x00, // Cycles256
+        };
+
 /* Constant Structure to command values */
 const struct
 {
@@ -79,6 +87,51 @@ ssp_err_t TMD3782Initialize(void)
     return SSP_SUCCESS;
 }
 
+ssp_err_t TMD3782SetEnableRegister(i2c_master_instance_t * const i2c, uint8_t address, bool proximityInterruptEnabled,
+        bool ambientLightSensingInterruptEnabled, bool waitEnabled, bool proxmityEnabled, bool adcEnabled, bool powerOn)
+{
+    // Create Command Byte
+    uint8_t commandByte = 0x00;
+
+    commandByte |= TMD3782Commands.Command;
+    commandByte |= proximityInterruptEnabled ? (1 << 5) : 0x00;
+    commandByte |= ambientLightSensingInterruptEnabled ? (1 << 4) : 0x00;
+    commandByte |= waitEnabled ? (1 << 3) : 0x00;
+    commandByte |= proxmityEnabled ? (1 << 2) : 0x00;
+    commandByte |= adcEnabled ? (1 << 1) : 0x00;
+    commandByte |= powerOn ? (1 << 0) : 0x00;
+
+    return I2CWriteRegister (i2c, address, TMD3782RegisterAddresses.ENABLE, commandByte, false);
+}
+
+ssp_err_t TMD3782GetEnableRegister(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const enableValue)
+{
+    ssp_err_t error;
+
+    // Read the enable register.
+    error = I2CReadRegister (i2c, address, TMD3782Commands.Command | TMD3782RegisterAddresses.ENABLE, enableValue, 1,
+                             false);
+    if (error != SSP_SUCCESS)
+        return error;
+
+    return SSP_SUCCESS;
+
+}
+
+ssp_err_t TMD3782SetRGBCIntegrationTimeRegister(i2c_master_instance_t * const i2c, uint8_t address,
+        uint8_t rgbcIntegrationTimeValue)
+{
+    return I2CWriteRegister (i2c, address, TMD3782Commands.Command | TMD3782RegisterAddresses.ATIME,
+                             rgbcIntegrationTimeValue, false);
+}
+
+ssp_err_t TMD3782GetRGBCIntegrationTimeRegister(i2c_master_instance_t * const i2c, uint8_t address,
+        uint8_t * const rgbcIntegrationTimeValue)
+{
+    return I2CReadRegister (i2c, address, TMD3782Commands.Command | TMD3782RegisterAddresses.ATIME,
+                            rgbcIntegrationTimeValue, 1, false);
+}
+
 ssp_err_t TMD3782ChipId(i2c_master_instance_t * const i2c, uint8_t address, uint8_t * const chipId)
 {
     ssp_err_t error;
@@ -96,8 +149,7 @@ ssp_err_t TMD3782Open(i2c_master_instance_t * const i2c, uint8_t address)
     ssp_err_t error;
 
     // Write WEN, PEN, AEN, PON = 1 to ENABLE register
-    error = I2CWriteRegister (i2c, address, TMD3782Commands.Command | TMD3782RegisterAddresses.ENABLE, 0b00001111,
-                              false);
+    error = TMD3782SetEnableRegister (i2c, address, false, false, true, true, true, true);
     if (error != SSP_SUCCESS)
         return error;
 
