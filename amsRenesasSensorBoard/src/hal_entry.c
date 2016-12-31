@@ -57,107 +57,125 @@ void hal_entry(void)
         printf ("\033[2J"); // Clear Screen
         printf ("\033[H"); // Return Home
         printf ("\033[3J"); // Clear Back Buffer
+        printf ("\033[?25l"); // Hide Cursor
     }
 #endif
+
+    printf(" --==================== AMS Renesas Sensor Board ====================--\r\n");
+    printf("\tHardware Initialization\r\n");
+
     /************************************
      * Init Timer
      ************************************/
-    printf ("Initializing Timer: ");
+    printf ("\t\tInitializing Timer: ");
     error = TimerInitialize ();
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
 
     /************************************
      * Init I2C
      ************************************/
-    printf ("Initializing I2C: ");
+    printf ("\t\t  Initializing I2C: ");
     error = I2CInitialize ();
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
 
-    printf ("Opening I2C: ");
+    printf ("\t\t       Opening I2C: ");
     error = I2COpen ((i2c_master_instance_t * const)&g_i2c);
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
 
-    printf ("Initializing AMS iQA Core C: ");
+    printf("\tSensor Initialization\r\n");
+
+    printf ("\t\tInitializing AMS iQA Core C: ");
     error = AMSiAQCoreInitialize();
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
 
-    printf ("Initializing ENS210: ");
+    printf ("\t\t        Initializing ENS210: ");
     error = ENS210Initialize();
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
 
-    printf ("Initializing AS3935: ");
+    printf ("\t\t        Initializing AS3935: ");
     error = AS3935Initialize();
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
 
-    printf ("Initializing TMD3782: ");
+    printf ("\t\t       Initializing TMD3782: ");
     error = TMD3782Initialize();
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
 
-    printf ("Opening ENS210: ");
+    printf ("\t\t             Opening ENS210: ");
     error = ENS210Open((i2c_master_instance_t * const)&g_i2c, ens210Address);
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
     }
-    printf ("OK.\r\n");
+    printf ("OK\r\n");
+
+    printf ("\t\t            Opening TMD3782: ");
+    error = TMD3782Open((i2c_master_instance_t * const)&g_i2c, tmd3782Address);
+    if (error != SSP_SUCCESS)
+    {
+        printf ("Failed\r\n");
+        while (true)
+        {
+        }
+    }
+    printf ("OK\r\n");
 
     printf ("ENS210 Chip ID: ");
     error = ENS210ChipId((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210ChipId);
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
@@ -168,7 +186,7 @@ void hal_entry(void)
     error = ENS210UniqueId((i2c_master_instance_t * const)&g_i2c, ens210Address, ens210UniqueId);
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
@@ -181,22 +199,11 @@ void hal_entry(void)
     }
     printf("\r\n");
 
-    printf ("Opening TMD3782: ");
-    error = TMD3782Open((i2c_master_instance_t * const)&g_i2c, tmd3782Address);
-    if (error != SSP_SUCCESS)
-    {
-        printf ("Failed.\r\n");
-        while (true)
-        {
-        }
-    }
-    printf ("OK.\r\n");
-
     printf ("ENS210 Sensor Run Mode:\r\n");
     error = ENS210GetSensorRunMode((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210SensorRunMode);
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
@@ -208,7 +215,7 @@ void hal_entry(void)
     error = TMD3782ChipId((i2c_master_instance_t * const)&g_i2c, tmd3782Address, &tmd3782ChipId);
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
@@ -219,7 +226,7 @@ void hal_entry(void)
     error = TMD3782Status((i2c_master_instance_t * const)&g_i2c, tmd3782Address, &tmd3782Status);
     if (error != SSP_SUCCESS)
     {
-        printf ("Failed.\r\n");
+        printf ("Failed\r\n");
         while (true)
         {
         }
@@ -237,13 +244,12 @@ void hal_entry(void)
 
     while (true)
     {
-        AMSiAQCoreUpdateSensors((i2c_master_instance_t * const)&g_i2c, iAQCoreCAddress, &aMSiAQCoreData);
+        AMSiAQCoreUpdateSensors((i2c_master_instance_t * const)&g_i2c, iAQCoreCAddress, &aMSiAQCoreData, true);
         ENS210UpdateSensors((i2c_master_instance_t * const)&g_i2c, ens210Address, &ens210Data);
         AS3935UpdateSensors((i2c_master_instance_t * const)&g_i2c, as3935Address, &as3935Data);
         TMD3782UpdateSensors((i2c_master_instance_t * const)&g_i2c, tmd3782Address, &tmd3782Data);
 
         printf("AMS iAQ Core C Data:\r\n");
-        printf("Prediction: %dppm\033[K\r\n", aMSiAQCoreData.Prediction);
         printf("    Status: ");
         if (aMSiAQCoreData.Status == 0x00)      printf("OK\033[K");
         else if (aMSiAQCoreData.Status == 0x10) printf("WARMING UP\033[K");
@@ -252,6 +258,7 @@ void hal_entry(void)
         else                                    printf("UNKNOWN\033[K");
         printf("\r\n");
 
+        printf("Prediction: %dppm\033[K\r\n", aMSiAQCoreData.Prediction);
         printf("Resistance: %luOhms\033[K\r\n", aMSiAQCoreData.Resistance);
         printf("      TVOC: %dppb\033[K\r\n", aMSiAQCoreData.TVOC);
 
@@ -259,6 +266,14 @@ void hal_entry(void)
         printf("ENS210 Data: \r\n");
         printf(" T: %fC\033[K\r\n", ens210Data.Temperature);
         printf("RH: %f%%\033[K\r\n", ens210Data.Humidity);
+
+        printf("\r\n");
+        printf("TMD3782 Data: \r\n");
+        printf("    Clear: %d\033[K\r\n", tmd3782Data.Clear);
+        printf("      Red: %d\033[K\r\n", tmd3782Data.Red);
+        printf("    Green: %d\033[K\r\n", tmd3782Data.Green);
+        printf("     Blue: %d\033[K\r\n", tmd3782Data.Blue);
+        printf("Proximity: %d\033[K\r\n", tmd3782Data.Proximity);
 
         printf("\r\n");
         printf("AS3935 Data: \r\n");
@@ -285,14 +300,6 @@ void hal_entry(void)
         printf("                        Calibration of SRCO: %s\033[K\r\n", as3935Data.SRCO_CALIB_DONE == 1 ? "Calibrated" : "Not Calibrated");
         printf("                        Calibration of SRCO: %s\033[K\r\n", as3935Data.SRCO_CALIB_NOK == 1 ? "Error" : "Successful");
 
-        printf("\r\n");
-        printf("TMD3782 Data: \r\n");
-        printf("    Clear: %d\033[K\r\n", tmd3782Data.Clear);
-        printf("      Red: %d\033[K\r\n", tmd3782Data.Red);
-        printf("    Green: %d\033[K\r\n", tmd3782Data.Green);
-        printf("     Blue: %d\033[K\r\n", tmd3782Data.Blue);
-        printf("Proximity: %d\033[K\r\n", tmd3782Data.Proximity);
-
 
 #ifdef USE_VT100
         {
@@ -301,6 +308,6 @@ void hal_entry(void)
         }
 #endif
 
-        TimerSleepMs (500);
+        TimerSleepMs (1000);
     }
 }

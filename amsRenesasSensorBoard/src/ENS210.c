@@ -53,13 +53,15 @@ ssp_err_t ENS210Open(i2c_master_instance_t * const i2c, uint8_t address)
 
     // Wait for sensor to be active
     uint8_t status = 0;
+    TimerSleepMs (50);
+    error = ENS210GetSystemStatus (i2c, address, &status);
     while ((status & 0x01) == 0)
     {
+        printf (".");
+        TimerSleepMs (50);
         error = ENS210GetSystemStatus (i2c, address, &status);
         if (error != SSP_SUCCESS)
             return error;
-        printf (".");
-        TimerSleepMs (50);
     }
 
     // Enable Continuous Measurements
